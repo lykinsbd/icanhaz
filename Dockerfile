@@ -31,7 +31,7 @@ WORKDIR /app
 EXPOSE 5000
 
 # When a container based on this image is executed, initialize the needed files and start our app
-CMD ["/usr/bin/gunicorn", "-c", "gunicorn.py", "icanhaz.app:app"]
+CMD ["gunicorn", "-c", "gunicorn.py", "icanhaz.app:app"]
 
 # Pull in a version at build time
 ARG version
