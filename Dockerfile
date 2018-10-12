@@ -28,15 +28,8 @@ WORKDIR /app
 # Copy our files into the container
 ADD . .
 
-# Stacking up several things here:
-    # Install our python package
-    # Set up a suid version of traceroute owned by root to enable icanhaztrace.com features
-    # Add our non-priviliged user
-RUN pip install --no-cache-dir --compile --editable . && \
-    cp /usr/bin/traceroute /bin/traceroute-suid && \
-    chown root:root /bin/traceroute-suid && \
-    chmod u+s /bin/traceroute-suid && \
-    addgroup -S icanhaz && adduser -S icanhaz -G icanhaz
+# Install our python package
+RUN pip install --no-cache-dir --compile --editable .
 
 # Export the version as an environment variable for possible logging/debugging
 ENV API_VER ${version}
@@ -48,9 +41,6 @@ HEALTHCHECK --interval=30s --timeout=3s --retries=3 \
 
 # Our code serves HTTP on port 5000. Dockervisor will expose this port to the world as some other port, set at run time.
 EXPOSE 5000
-
-# Switch to our user:
-USER icanhaz
 
 # When a container based on this image is executed, start our app in gunicorn
 CMD ["gunicorn", "-c", "gunicorn.py", "icanhaz.icanhaz:app"]

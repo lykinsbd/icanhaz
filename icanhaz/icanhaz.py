@@ -24,7 +24,7 @@ from flask import Flask, Response, request, send_from_directory
 
 
 app = Flask(__name__, static_folder="static")
-traceroute_bin = "/bin/traceroute-suid"
+traceroute_bin = "/usr/bin/traceroute"
 
 
 @app.route("/")
