@@ -1,2 +1,11 @@
 .DS_Store
 *.pyc
+
+# Pycharm stuff
+.idea/
+
+# Virtual Env stuff
+bin/
+include/
+lib/
+pyvenv.cfg
