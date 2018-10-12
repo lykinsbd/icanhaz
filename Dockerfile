@@ -1,6 +1,16 @@
 # Start with an Alpine-based Python image
 FROM python:alpine3.7
 
+# Pull in a version at build time
+ARG version
+
+# Set image metadata
+LABEL name="ICANHAZ Container" \
+      maintainer="Major Hayden" \
+      author="Major Hayden" \
+      license="Apache 2.0" \
+      version="${version}"
+
 # Add our user
 RUN useradd icanhaz
 
@@ -10,6 +20,7 @@ ENV PS1='[\u@\h \W]\$ '
 # Update and upgrade all installed packages. Add some new ones:
 #    curl: self-healthchecks
 #    libssl1.0: being an HTTPS server
+#    traceroute: for icanhaztraceroute to function
 RUN apk update && \
     apk upgrade --no-cache && \
     apk add --no-cache \
@@ -25,24 +36,6 @@ RUN cp /bin/traceroute /bin/traceroute-suid && \
 
 # Equivalent to `cd /app`
 WORKDIR /app
-
-# Our code serves HTTP on port 5000. The dockervisor will expose this port
-# to the world as some other number, set at run time.
-EXPOSE 5000
-
-# When a container based on this image is executed, initialize the needed files and start our app
-CMD ["gunicorn", "-c", "gunicorn.py", "icanhaz.app:app"]
-
-# Pull in a version at build time
-ARG version
-
-# Set image metadata
-LABEL name="ICANHAZ Container" \
-      maintainer="Major Hayden" \
-      author="Major Hayden" \
-      license="Apache 2.0" \
-      version="${version}"
-
 
 # Copy our files into the container
 ADD . .
@@ -63,10 +56,13 @@ apk add --no-cache --virtual .build-deps \
 # Export the version as an environment variable for possible logging/debugging
 ENV API_VER ${version}
 
-# This container performs its own healthchecks by attempting to connect to
-# our HTTP server and GET the healthcheck endpoint.
-# Example of a successful response:
-# {"status":200,"content":null,"message":"NAAS is running.","request_id":"2bef8456-c25b-4884-9250-9a0eeb4b4654"}
+# This container performs its own healthchecks by attempting to connect to HTTP and GET "/"
 HEALTHCHECK --interval=30s --timeout=3s --retries=3 \
     CMD [ $APP_ENVIRONMENT = "staging" ] && staging="-staging"; \
     curl -k -f -H "Host: icanhazip${staging}.com" https://127.0.0.1:5000/
+
+# Our code serves HTTP on port 5000. Dockervisor will expose this port to the world as some other port, set at run time.
+EXPOSE 5000
+
+# When a container based on this image is executed, start our app in gunicorn
+CMD ["gunicorn", "-c", "gunicorn.py", "icanhaz.app:app"]
