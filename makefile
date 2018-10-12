@@ -17,6 +17,8 @@ container:
 	docker build --pull --build-arg version="$(version)" \
 	--tag lykinsbd/icanhaz:$(version) \
 	--tag lykinsbd/icanhaz:latest .
+
+push:
 	@echo Pushing container...
 	docker push lykinsbd/icanhaz:$(version)
 	docker push lykinsbd/icanhaz:latest

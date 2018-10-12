@@ -15,3 +15,13 @@ This is some of the code behind the scenes of some goofy websites like:
 It's Apache 2.0 licensed and it's poorly written code. ;)
 
 *Enjoy! -- Major Hayden*
+
+Deploying the Container
+=======================
+
+If you _do_ want to deploy this yourself:
+* Build the container:
+    * `make container`
+* Run the container:
+    * `docker run --restart=unless-stopped --name icanhaz-1 -i -d -p 46000:5000 --log-opt max-size=20m --log-opt max-file=5 lykinsbd/icanhaz:latest`
+* Profit!
