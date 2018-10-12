@@ -23,23 +23,23 @@ import time
 from flask import Flask, Response, request, send_from_directory
 
 
-app = Flask(__name__, static_folder='static')
+app = Flask(__name__, static_folder="static")
 traceroute_bin = "/bin/traceroute-suid"
 
 
 @app.route("/")
 def icanhazafunction():
-    if 'icanhazptr' in request.host:
+    if "icanhazptr" in request.host:
         # The request is for *.icanhazptr.com
         try:
             output = socket.gethostbyaddr(request.remote_addr)
             result = output[0]
         except:
             result = request.remote_addr
-    elif 'icanhazepoch' in request.host:
+    elif "icanhazepoch" in request.host:
         epoch_time = int(time.time())
         result = epoch_time
-    elif 'icanhaztrace' in request.host:
+    elif "icanhaztrace" in request.host:
         # The request is for *.icanhaztraceroute.com
         valid_ip = False
         try:
@@ -53,31 +53,26 @@ def icanhazafunction():
         except socket.error:
             pass
         if valid_ip:
-            if 'icanhaztraceroute' in request.host:
-                tracecmd = shlex.split("%s -q 1 -f 2 -w 1 %s" %
-                                       (traceroute_bin, request.remote_addr))
+            if "icanhaztraceroute" in request.host:
+                tracecmd = shlex.split("%s -q 1 -f 2 -w 1 %s" % (traceroute_bin, request.remote_addr))
             else:
-                tracecmd = shlex.split("%s -q 1 -f 2 -w 1 -n %s" %
-                                       (traceroute_bin, request.remote_addr))
-            result = subprocess.Popen(
-                tracecmd,
-                stdout=subprocess.PIPE
-                ).communicate()[0].strip()
-            result = result.decode('utf-8')
+                tracecmd = shlex.split("%s -q 1 -f 2 -w 1 -n %s" % (traceroute_bin, request.remote_addr))
+            result = subprocess.Popen(tracecmd, stdout=subprocess.PIPE).communicate()[0].strip()
+            result = result.decode("utf-8")
         else:
             result = request.remote_addr
-    elif 'icanhazproxy' in request.host:
+    elif "icanhazproxy" in request.host:
         proxy_headers = [
-            'via',
-            'forwarded',
-            'client-ip',
-            'useragent_via',
-            'proxy_connection',
-            'xproxy_connection',
-            'http_pc_remote_addr',
-            'http_client_ip',
-            'http_x_appengine_country'
-            ]
+            "via",
+            "forwarded",
+            "client-ip",
+            "useragent_via",
+            "proxy_connection",
+            "xproxy_connection",
+            "http_pc_remote_addr",
+            "http_client_ip",
+            "http_x_appengine_country",
+        ]
         found_headers = {}
         for header in proxy_headers:
             value = request.headers.get(header, None)
@@ -87,17 +82,17 @@ def icanhazafunction():
             result = json.dumps(found_headers)
         else:
             return Response(""), 204
-    elif 'icanhazheaders' in request.host:
+    elif "icanhazheaders" in request.host:
         result = json.dumps(dict(request.headers))
     else:
         # The request is for *.icanhazip.com or something we don't recognize
         result = request.remote_addr
-    return Response("%s\n" % result, mimetype="text/plain", headers={'X-Your-Ip': request.remote_addr})
+    return Response("%s\n" % result, mimetype="text/plain", headers={"X-Your-Ip": request.remote_addr})
 
 
-@app.route('/crossdomain.xml')
-@app.route('/humans.txt')
-@app.route('/robots.txt')
+@app.route("/crossdomain.xml")
+@app.route("/humans.txt")
+@app.route("/robots.txt")
 def static_from_root():
     return send_from_directory(app.static_folder, request.path[1:])
 
